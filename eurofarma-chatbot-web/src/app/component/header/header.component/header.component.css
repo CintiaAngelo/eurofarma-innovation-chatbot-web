@@ -1,0 +1,68 @@
+/* src/app/component/header/header.component.css */
+
+:host {
+  --eurofarma-darkblue: #00274C;
+  --eurofarma-blue: #11296B;
+  --eurofarma-light: #EDEDED;
+  --eurofarma-yellow: #FFDB57;
+  --eurofarma-gold: #FFCB05;
+  --white: #FFFFFF;
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.app-header {
+  background-color: var(--eurofarma-darkblue);
+  color: var(--white);
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+  box-shadow: var(--shadow-md);
+}
+
+.header-container {
+  max-width: 900px;
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.header-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brand-icon {
+  color: var(--eurofarma-gold);
+}
+
+.brand-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.header-nav {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  gap: 1.5rem;
+}
+
+.nav-link {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease-in-out;
+  cursor: pointer;
+}
+
+.nav-link:hover {
+  color: var(--eurofarma-gold);
+}
+
+.nav-link.active {
+  font-weight: 600;
+}

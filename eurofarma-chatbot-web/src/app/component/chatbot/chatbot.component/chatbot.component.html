@@ -1,0 +1,39 @@
+<main class="chat-container-main">
+    <div class="chatbot-card">
+        <div class="chat-header">
+            <h2 class="chat-title">Innovation Chat</h2>
+            <div class="status-indicators">
+                <span class="status-indicator-circle online"></span>
+                <span class="status-indicator-circle away"></span>
+                <span class="status-indicator-circle offline"></span>
+            </div>
+        </div>
+        
+        <div class="chat-window" id="chatWindow">
+            @for (message of chatMessages; track message.text) {
+                <div class="chat-message" [ngClass]="{'user-message': message.sender === 'user', 'bot-message': message.sender === 'bot'}">
+                    @if (!message.isTyping) {
+                        <p [innerHTML]="message.text"></p>
+                    } @else {
+                        <p class="typing-indicator">Digitando...</p>
+                    }
+                    
+                    @if (message.options && message.options.length > 0) {
+                        <a routerLink="/submit-idea" class="action-button">
+                            {{ message.options[0] }}
+                        </a>
+                    }
+                </div>
+            }
+        </div>
+        
+        <div class="chat-input-area">
+            <div class="input-group">
+                <input type="text" [(ngModel)]="userInput" (keyup.enter)="handleUserInput()" placeholder="Digite sua mensagem..." class="chat-input">
+                <button (click)="handleUserInput()" class="send-button">
+                    <i data-feather="send"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</main>

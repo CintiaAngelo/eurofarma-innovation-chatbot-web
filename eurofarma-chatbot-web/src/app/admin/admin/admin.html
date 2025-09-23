@@ -1,0 +1,268 @@
+<main class="admin-container">
+    <div class="admin-card">
+        <div class="tab-header">
+            <nav class="tab-navigation">
+                <button (click)="selectTab('newsletters')" class="tab-button"
+                        [ngClass]="{'tab-button-active': activeTab === 'newsletters'}">
+                    Newsletters
+                </button>
+                <button (click)="selectTab('ideas')" class="tab-button"
+                        [ngClass]="{'tab-button-active': activeTab === 'ideas'}">
+                    Ideias Recebidas
+                </button>
+                <button (click)="selectTab('analytics')" class="tab-button"
+                        [ngClass]="{'tab-button-active': activeTab === 'analytics'}">
+                    Analytics
+                </button>
+            </nav>
+        </div>
+        
+        @if (activeTab === 'newsletters') {
+            <div class="tab-content" [class.active]="activeTab === 'newsletters'">
+                <div class="tab-content-header">
+                    <h2 class="tab-title">Newsletters Semanais</h2>
+                    <button (click)="openNewsletterModal()" class="action-button">
+                        <i data-feather="plus"></i> Nova Newsletter
+                    </button>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Data</th>
+                                <th>Título</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-body">
+                            @for (item of newsletters; track item.id_newsletter) {
+                                <tr>
+                                    <td>{{ item.data_envio_programada | date: 'dd/MM/yyyy' }}</td>
+                                    <td>{{ item.titulo }}</td>
+                                    <td>
+                                        <span class="status-badge status-sent">{{ item.status_envio }}</span>
+                                    </td>
+                                    <td>
+                                        <button class="action-icon-button"><i data-feather="eye"></i></button>
+                                        <button class="action-icon-button action-edit"><i data-feather="edit"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        }
+
+        @if (activeTab === 'ideas') {
+            <div class="tab-content" [class.active]="activeTab === 'ideas'">
+                <div class="tab-content-header">
+                    <h2 class="tab-title">Ideias Recebidas</h2>
+                    <div class="filter-controls">
+                        <div class="select-wrapper">
+                            <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFiltersAndSort()">
+                                <option value="todos">Filtrar por status</option>
+                                @for (status of ideaStatuses; track status) {
+                                  <option [value]="status">{{ status }}</option>
+                                }
+                            </select>
+                            <i data-feather="chevron-down"></i>
+                        </div>
+                        <div class="select-wrapper">
+                            <select class="filter-select" [(ngModel)]="sortOrder" (change)="applyFiltersAndSort()">
+                                <option value="data-desc">Ordenar por data (mais recente)</option>
+                                <option value="data-asc">Ordenar por data (mais antiga)</option>
+                                <option value="departamento">Ordenar por Departamento</option>
+                            </select>
+                            <i data-feather="chevron-down"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="data-table">
+                        <thead class="table-header">
+                            <tr>
+                                <th>Data</th>
+                                <th>Colaborador</th>
+                                <th>Departamento</th>
+                                <th>Ideia</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody class="table-body">
+                            @for (idea of paginatedIdeas; track idea.id_ideia) {
+                                <tr>
+                                    <td>{{ idea.data_submissao | date: 'dd/MM/yyyy' }}</td>
+                                    <td>
+                                        <div class="user-name">{{ idea.nome }}</div>
+                                        <div class="user-email">{{ idea.email }}</div>
+                                    </td>
+                                    <td>{{ idea.departamento }}</td>
+                                    <td>
+                                        <div class="idea-title">{{ idea.titulo_ideia }}</div>
+                                    </td>
+                                    <td>
+                                        <span class="status-badge"
+                                            [ngClass]="{
+                                                'status-submitted': idea.status_ideia === 'Submetida',
+                                                'status-review': idea.status_ideia === 'Em análise',
+                                                'status-received': idea.status_ideia === 'Recebida',
+                                                'status-implemented': idea.status_ideia === 'Implementada',
+                                                'status-sent': idea.status_ideia === 'Aprovada'
+                                            }">
+                                            {{ idea.status_ideia }}
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <button (click)="viewIdea(idea)" class="action-icon-button"><i data-feather="eye"></i></button>
+                                        <button (click)="editIdea(idea)" class="action-icon-button action-edit"><i data-feather="edit"></i></button>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (totalItems > itemsPerPage) {
+                  <div class="pagination-controls">
+                      <div class="pagination-info">
+                          Mostrando <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> a <span class="font-medium">{{ (currentPage * itemsPerPage) > totalItems ? totalItems : (currentPage * itemsPerPage) }}</span> de <span class="font-medium">{{ totalItems }}</span> resultados
+                      </div>
+                      <div class="pagination-buttons">
+                          <button (click)="prevPage()" [disabled]="currentPage === 1" class="pagination-btn">Anterior</button>
+                          @for (page of visiblePages; track page) {
+                              <button (click)="goToPage(page)" [class.active]="currentPage === page" class="pagination-btn pagination-number-btn">{{ page }}</button>
+                          }
+                          <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="pagination-btn">Próxima</button>
+                      </div>
+                  </div>
+                }
+            </div>
+        }
+
+        @if (activeTab === 'analytics') {
+            <div class="tab-content" [class.active]="activeTab === 'analytics'">
+                <h2 class="tab-title">Analytics</h2>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                    <div class="chart-card">
+                        <h3 class="chart-title">Ideias por Departamento</h3>
+                        <div class="chart-placeholder">
+                            <p>Gráfico de ideias por departamento</p>
+                        </div>
+                    </div>
+                    <div class="chart-card">
+                        <h3 class="chart-title">Status das Ideias</h3>
+                        <div class="chart-placeholder">
+                            <p>Gráfico de status das ideias</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">Total de Ideias</h3>
+                            <span class="metric-badge metric-badge-blue">+12%</span>
+                        </div>
+                        <p class="metric-value">{{ analytics.totalIdeas }}</p>
+                        <p class="metric-description">Desde o início do programa</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">Ideias Implementadas</h3>
+                            <span class="metric-badge metric-badge-green">+8%</span>
+                        </div>
+                        <p class="metric-value">{{ analytics.implementedIdeas }}</p>
+                        <p class="metric-description">26% do total</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">Pontos Distribuídos</h3>
+                            <span class="metric-badge metric-badge-gold">+15%</span>
+                        </div>
+                        <p class="metric-value">{{ analytics.pointsDistributed }}</p>
+                        <p class="metric-description">10 pontos por ideia</p>
+                    </div>
+                </div>
+                
+                <div class="analytics-top-employee">
+                  <h3 class="text-lg font-medium text-eurofarma-darkblue mb-4">Funcionário com Mais Pontos 🥇</h3>
+                  @if (analytics.topEmployee) {
+                    <div class="top-employee-card">
+                        <div class="top-employee-icon">{{ analytics.topEmployee.nome?.charAt(0) }}</div>
+                        <div class="top-employee-info">
+                            <p class="top-employee-name">{{ analytics.topEmployee.nome }}</p>
+                            <p class="top-employee-department">{{ analytics.topEmployee.departamento }}</p>
+                            <p class="top-employee-points">
+                                <i data-feather="star"></i> {{ analytics.topEmployee.pontos_gamificacao }} pontos
+                            </p>
+                        </div>
+                    </div>
+                  } @else {
+                      <div class="no-data-card">
+                          <p>Nenhum dado de funcionário encontrado.</p>
+                      </div>
+                  }
+                </div>
+            </div>
+        }
+        
+        @if (showModal) {
+            <div class="modal-overlay">
+                <div class="modal-card">
+                    <div class="modal-header">
+                        <h3 class="modal-title">{{ isEditing ? 'Editar Ideia' : 'Nova Newsletter' }}</h3>
+                        <button (click)="closeModal()" class="modal-close-button">
+                            <i data-feather="x"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        @if (!isEditing) {
+                            <form (ngSubmit)="onSubmitNewsletter()">
+                                <div class="form-group">
+                                    <label class="form-label">Título</label>
+                                    <input type="text" [(ngModel)]="newNewsletter.titulo" name="newsletterTitle" class="form-input" placeholder="Ex: Novidades da Semana">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Conteúdo</label>
+                                    <textarea [(ngModel)]="newNewsletter.conteudo" name="newsletterContent" rows="5" class="form-input" placeholder="Digite o conteúdo aqui..."></textarea>
+                                </div>
+                                <div class="form-actions">
+                                    <button type="button" (click)="closeModal()" class="cancel-button">Cancelar</button>
+                                    <button type="submit" class="submit-button">Salvar e Enviar</button>
+                                </div>
+                            </form>
+                        }
+                        @if (isEditing) {
+                            <form (ngSubmit)="saveModalIdea()">
+                                <div class="form-group">
+                                    <label class="form-label">Título</label>
+                                    <input type="text" [(ngModel)]="modalIdea.titulo_ideia" name="titulo_ideia" class="form-input">
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Descrição</label>
+                                    <textarea [(ngModel)]="modalIdea.descricao_ideia_clob" name="descricao_ideia_clob" rows="5" class="form-input"></textarea>
+                                </div>
+                                <div class="form-group">
+                                    <label class="form-label">Status</label>
+                                    <select [(ngModel)]="modalIdea.status_ideia" name="status_ideia" class="form-input">
+                                        @for (status of ideaStatuses; track status) {
+                                            <option [value]="status">{{ status }}</option>
+                                        }
+                                    </select>
+                                </div>
+                                <div class="form-actions form-actions-between" [style.justifyContent]="isEditing ? 'space-between' : 'flex-end'">
+                                    <button type="button" (click)="closeModal()" class="cancel-button">Fechar</button>
+                                    <button type="submit" class="submit-button">Salvar</button>
+                                </div>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+</main>

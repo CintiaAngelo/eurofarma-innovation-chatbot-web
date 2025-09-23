@@ -1,0 +1,148 @@
+<main class="idea-form-container">
+  <div class="form-card">
+    <div class="form-header">
+      <h2 class="form-title">Compartilhe sua ideia</h2>
+      <div class="form-progress-bar-container">
+        <div class="form-progress-bar" [style.width.%]="progressBarWidth"></div>
+      </div>
+    </div>
+    
+    <div class="form-body">
+      <form (ngSubmit)="onSubmit()">
+
+        @if (currentStep === 1) {
+          <div class="form-step active">
+            <h3 class="step-title">Informações do Colaborador</h3>
+            <div class="form-fields">
+              <div class="form-group">
+                <label for="name" class="form-label">Nome Completo</label>
+                <input type="text" id="name" [(ngModel)]="formData.name" name="name" required class="form-input">
+              </div>
+              <div class="form-group">
+                <label for="email" class="form-label">E-mail Corporativo</label>
+                <input type="email" id="email" [(ngModel)]="formData.email" name="email" required class="form-input">
+              </div>
+              <div class="form-group">
+                <label for="phone" class="form-label">Telefone Corporativo (Opcional)</label>
+                <input type="tel" id="phone" [(ngModel)]="formData.phone" name="phone" class="form-input">
+              </div>
+              <div class="form-group">
+                <label for="department" class="form-label">Departamento</label>
+                <select id="department" [(ngModel)]="formData.department" name="department" required class="form-input form-select">
+                  <option value="">Selecione seu departamento</option>
+                  <option value="TI">TI</option>
+                  <option value="RH">RH</option>
+                  <option value="Financeiro">Financeiro</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Produção">Produção</option>
+                  <option value="Qualidade">Qualidade</option>
+                  <option value="P&D">P&D</option>
+                  <option value="Inovação">Inovação</option>
+                  <option value="Outro">Outro</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button type="button" (click)="nextStep()" class="form-btn form-btn-primary">
+                Próximo <i data-feather="arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        }
+        
+        @if (currentStep === 2) {
+          <div class="form-step active">
+            <h3 class="step-title">Sobre sua ideia</h3>
+            <div class="form-fields">
+              <div class="form-group">
+                <label for="ideaTitle" class="form-label">Título da Ideia</label>
+                <input type="text" id="ideaTitle" [(ngModel)]="formData.ideaTitle" name="ideaTitle" required class="form-input" placeholder="Ex: Melhoria no processo de logística">
+              </div>
+              <div class="form-group">
+                <label for="ideaDescription" class="form-label">Descrição Detalhada</label>
+                <textarea id="ideaDescription" [(ngModel)]="formData.ideaDescription" name="ideaDescription" rows="5" required class="form-input" placeholder="Descreva sua ideia com o máximo de detalhes possível..."></textarea>
+              </div>
+            </div>
+            <div class="form-actions form-actions-between">
+              <button type="button" (click)="prevStep()" class="form-btn form-btn-secondary">
+                <i data-feather="arrow-left"></i> Voltar
+              </button>
+              <button type="button" (click)="nextStep()" class="form-btn form-btn-primary">
+                Próximo <i data-feather="arrow-right"></i>
+              </button>
+            </div>
+          </div>
+        }
+        
+        @if (currentStep === 3) {
+          <div class="form-step active">
+            <h3 class="step-title">Confira seus dados</h3>
+            <div class="review-summary">
+              <h4 class="review-title">Informações Pessoais</h4>
+              <div class="review-grid">
+                <div>
+                  <p class="review-label">Nome</p>
+                  <p class="review-value">{{ formData.name }}</p>
+                </div>
+                <div>
+                  <p class="review-label">E-mail</p>
+                  <p class="review-value">{{ formData.email }}</p>
+                </div>
+                <div>
+                  <p class="review-label">Telefone</p>
+                  <p class="review-value">{{ formData.phone || '-' }}</p>
+                </div>
+                <div>
+                  <p class="review-label">Departamento</p>
+                  <p class="review-value">{{ formData.department }}</p>
+                </div>
+              </div>
+              
+              <h4 class="review-title">Sua Ideia</h4>
+              <div class="review-section">
+                <p class="review-label">Título</p>
+                <p class="review-value">{{ formData.ideaTitle }}</p>
+              </div>
+              <div class="review-section">
+                <p class="review-label">Descrição</p>
+                <p class="review-value">{{ formData.ideaDescription }}</p>
+              </div>
+            </div>
+            
+            <div class="form-terms">
+              <input type="checkbox" id="terms" name="terms" required class="form-checkbox">
+              <label for="terms" class="form-checkbox-label">Concordo com os termos de uso e confirmo que esta ideia é original e de minha autoria.</label>
+            </div>
+            
+            <div class="form-actions form-actions-between">
+              <button type="button" (click)="prevStep()" class="form-btn form-btn-secondary">
+                <i data-feather="arrow-left"></i> Voltar
+              </button>
+              <button type="submit" class="form-btn form-btn-submit">
+                <i data-feather="check"></i> Enviar Ideia
+              </button>
+            </div>
+          </div>
+        }
+        
+        @if (currentStep === 4) {
+          <div class="form-step active">
+            <div class="confirmation-section">
+              <div class="confirmation-icon">
+                <i data-feather="check"></i>
+              </div>
+              <h3 class="confirmation-title">Ideia enviada com sucesso!</h3>
+              <p class="confirmation-message">Obrigado por contribuir com a inovação na Eurofarma. Você ganhou 10 pontos!</p>
+              <div class="confirmation-actions">
+                <a routerLink="/" class="confirmation-link-chat">Voltar ao chat</a>
+                <button type="button" (click)="resetForm()" class="confirmation-btn-new">
+                  Enviar outra ideia
+                </button>
+              </div>
+            </div>
+          </div>
+        }
+      </form>
+    </div>
+  </div>
+</main>
