@@ -1,0 +1,65 @@
+{
+  "start": {
+    "question": "Olá! Gostaria de enviar uma ideia para o time de inovação?",
+    "options": [
+      {"text": "Sim, quero!", "next": "ask_name"},
+      {"text": "Não, obrigado.", "next": "end_cancel"}
+    ]
+  },
+  "ask_name": {
+    "question": "Ótimo! Para começarmos, qual é o seu nome completo?",
+    "input_type": "text",
+    "required": true,
+    "data_field": "name",
+    "next": "ask_email"
+  },
+  "ask_email": {
+    "question": "E qual é o seu e-mail corporativo?",
+    "input_type": "text",
+    "required": true,
+    "data_field": "email",
+    "next": "ask_department"
+  },
+  "ask_department": {
+    "question": "Em qual departamento você trabalha?",
+    "input_type": "text",
+    "required": true,
+    "data_field": "department",
+    "next": "ask_phone"
+  },
+  "ask_phone": {
+    "question": "Qual é o seu telefone corporativo? (Opcional)",
+    "input_type": "text",
+    "required": false,
+    "data_field": "phone",
+    "next": "ask_title"
+  },
+  "ask_title": {
+    "question": "Perfeito! Agora, qual seria o título da sua ideia?",
+    "input_type": "text",
+    "data_field": "ideaTitle",
+    "next": "ask_description"
+  },
+  "ask_description": {
+    "question": "Por favor, descreva sua ideia em detalhes.",
+    "input_type": "text",
+    "data_field": "ideaDescription",
+    "next": "confirm"
+  },
+  "confirm": {
+    "question": "Sua ideia e seus dados estão prontos para serem enviados. Confirma o envio?",
+    "options": [
+      {"text": "Confirmar e Enviar", "next": "submit"},
+      {"text": "Quero editar", "next": "ask_name"},
+      {"text": "Cancelar", "next": "end_cancel"}
+    ]
+  },
+  "end_cancel": {
+    "message": "Entendido. Se mudar de ideia, pode iniciar o processo a qualquer momento. Obrigado!",
+    "end": true
+  },
+  "end_success": {
+    "message": "Sua ideia foi enviada com sucesso! Você ganhou 10 pontos de inovação. Agradecemos sua colaboração.",
+    "end": true
+  }
+}
