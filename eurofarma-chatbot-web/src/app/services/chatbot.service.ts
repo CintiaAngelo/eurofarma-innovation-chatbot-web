@@ -41,4 +41,13 @@ export class ChatbotService {
   getTopEmployee(): Observable<any> {
     return this.http.get(`${this.API_URL}/gamification/top-employee`);
   }
+
+getAnalyticsDashboard(): Observable<any> {
+  return this.http.get(`${this.API_URL}/analytics/dashboard`);
+}
+
+getEngagementMetrics(): Observable<any> {
+  return this.http.get(`${this.API_URL}/analytics/engagement`);
+}
+
 }

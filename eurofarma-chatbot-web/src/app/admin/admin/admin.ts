@@ -28,11 +28,17 @@ export class AdminComponent implements OnInit {
   paginatedIdeas: any[] = [];
   
   analytics = {
-    totalIdeas: 156,
-    implementedIdeas: 42,
-    pointsDistributed: 1560,
-    ideasByDepartment: [],
-    ideasByStatus: [],
+    totalIdeas: 0,
+    implementedIdeas: 0,
+    pointsDistributed: 0,
+    implementationRate: 0,
+    ideasByDepartment: [] as any[],
+    ideasByStatus: [] as any[],
+    ideasByMonth: [] as any[],
+    topEmployees: [] as any[],
+    activeUsers: [] as any[],
+    activeDepts: [] as any[],
+    avgImplementationTime: 0,
     topEmployee: null as any
   };
 
@@ -86,21 +92,6 @@ export class AdminComponent implements OnInit {
     });
   }
   
-  loadAnalyticsData(): void {
-    this.chatbotService.getTopEmployee().subscribe({
-      next: (data) => {
-        this.analytics.topEmployee = data;
-      },
-      error: (err) => {
-        console.error('Erro ao buscar funcionário com mais pontos:', err);
-      }
-    });
-    
-    this.analytics.totalIdeas = 156;
-    this.analytics.implementedIdeas = 42;
-    this.analytics.pointsDistributed = 1560;
-  }
-
   applyFiltersAndSort(): void {
     let tempIdeas = [...this.ideas];
 
@@ -223,4 +214,55 @@ export class AdminComponent implements OnInit {
         }
     });
   }
+
+  loadAnalyticsData(): void {
+    // Dados principais do dashboard
+    this.chatbotService.getAnalyticsDashboard().subscribe({
+      next: (data) => {
+        this.analytics = { ...this.analytics, ...data };
+      },
+      error: (err) => {
+        console.error('Erro ao buscar dados de analytics:', err);
+      }
+    });
+
+    // Métricas de engajamento
+    this.chatbotService.getEngagementMetrics().subscribe({
+      next: (data) => {
+        this.analytics.activeUsers = data.activeUsers;
+        this.analytics.activeDepts = data.activeDepts;
+        this.analytics.avgImplementationTime = data.avgImplementationTime;
+      },
+      error: (err) => {
+        console.error('Erro ao buscar métricas de engajamento:', err);
+      }
+    });
+
+    // Funcionário top (mantido para compatibilidade)
+    this.chatbotService.getTopEmployee().subscribe({
+      next: (data) => {
+        this.analytics.topEmployee = data;
+      },
+      error: (err) => {
+        console.error('Erro ao buscar funcionário com mais pontos:', err);
+      }
+    });
+
+  }
+  getStatusColor(status: string): string {
+  const colors: { [key: string]: string } = {
+    'Submetida': '#FFDB57',
+    'Em análise': '#11296B', 
+    'Aprovada': '#00274C',
+    'Implementada': '#166534',
+    'Recebida': '#92400E'
+  };
+  return colors[status] || '#6B7280';
+}
+
+getMaxMonthlyIdeas(): number {
+  if (!this.analytics.ideasByMonth.length) return 1;
+  return Math.max(...this.analytics.ideasByMonth.map(m => m.count));
+}
+
 }

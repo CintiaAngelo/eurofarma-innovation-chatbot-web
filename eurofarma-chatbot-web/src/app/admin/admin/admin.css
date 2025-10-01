@@ -565,3 +565,196 @@
   font-weight: 500;
   margin-top: 0.25rem;
 }
+
+/* Adicione ao admin.css */
+
+.chart-container {
+  padding: 1rem 0;
+}
+
+.chart-bar-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.chart-bar-label {
+  width: 120px;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.chart-bar-track {
+  flex: 1;
+  height: 24px;
+  background-color: var(--gray-200);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+}
+
+.chart-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--eurofarma-blue), var(--eurofarma-darkblue));
+  border-radius: 12px;
+  transition: width 0.5s ease-in-out;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 8px;
+}
+
+.chart-bar-value {
+  color: var(--white);
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.chart-pie-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.chart-pie-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.chart-pie-color {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+}
+
+.chart-pie-label {
+  flex: 1;
+  font-size: 0.875rem;
+  color: var(--gray-700);
+}
+
+.chart-pie-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--eurofarma-darkblue);
+}
+
+.top-list, .engagement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.top-list-item, .engagement-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: var(--gray-50);
+  border-radius: 0.5rem;
+}
+
+.top-list-rank, .engagement-rank {
+  width: 24px;
+  height: 24px;
+  background-color: var(--eurofarma-gold);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--eurofarma-darkblue);
+}
+
+.top-list-avatar {
+  width: 32px;
+  height: 32px;
+  background-color: var(--eurofarma-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--white);
+  font-weight: 600;
+}
+
+.top-list-info, .engagement-info {
+  flex: 1;
+}
+
+.top-list-name, .engagement-name {
+  font-weight: 600;
+  color: var(--gray-900);
+  font-size: 0.875rem;
+}
+
+.top-list-detail, .engagement-detail {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+}
+
+.top-list-points {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-weight: 600;
+  color: var(--eurofarma-gold);
+}
+
+.engagement-bar {
+  flex: 0 0 80px;
+  height: 8px;
+  background-color: var(--gray-200);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.engagement-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--eurofarma-gold), var(--eurofarma-yellow));
+  border-radius: 4px;
+  transition: width 0.5s ease-in-out;
+}
+
+.monthly-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 200px;
+  padding: 1rem 0;
+}
+
+.monthly-bar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+
+.monthly-bar-fill {
+  width: 100%;
+  background: linear-gradient(to top, var(--eurofarma-blue), var(--eurofarma-darkblue));
+  border-radius: 4px 4px 0 0;
+  position: relative;
+  transition: height 0.5s ease-in-out;
+  display: flex;
+  justify-content: center;
+}
+
+.monthly-bar-value {
+  position: absolute;
+  top: -25px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--eurofarma-darkblue);
+}
+
+.monthly-bar-label {
+  margin-top: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--gray-600);
+  font-weight: 500;
+}

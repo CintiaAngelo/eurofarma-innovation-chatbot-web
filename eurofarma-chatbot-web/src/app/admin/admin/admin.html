@@ -142,73 +142,143 @@
             </div>
         }
 
-        @if (activeTab === 'analytics') {
-            <div class="tab-content" [class.active]="activeTab === 'analytics'">
-                <h2 class="tab-title">Analytics</h2>
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-                    <div class="chart-card">
-                        <h3 class="chart-title">Ideias por Departamento</h3>
-                        <div class="chart-placeholder">
-                            <p>Gráfico de ideias por departamento</p>
-                        </div>
-                    </div>
-                    <div class="chart-card">
-                        <h3 class="chart-title">Status das Ideias</h3>
-                        <div class="chart-placeholder">
-                            <p>Gráfico de status das ideias</p>
-                        </div>
-                    </div>
+@if (activeTab === 'analytics') {
+  <div class="tab-content" [class.active]="activeTab === 'analytics'">
+    <h2 class="tab-title">Analytics</h2>
+    
+    <!-- Métricas Principais -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+      <div class="metric-card">
+        <div class="metric-header">
+          <h3 class="metric-title">Total de Ideias</h3>
+          <span class="metric-badge metric-badge-blue">+12%</span>
+        </div>
+        <p class="metric-value">{{ analytics.totalIdeas }}</p>
+        <p class="metric-description">Desde o início do programa</p>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header">
+          <h3 class="metric-title">Ideias Implementadas</h3>
+          <span class="metric-badge metric-badge-green">+8%</span>
+        </div>
+        <p class="metric-value">{{ analytics.implementedIdeas }}</p>
+        <p class="metric-description">{{ analytics.implementationRate | number:'1.1-1' }}% do total</p>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header">
+          <h3 class="metric-title">Pontos Distribuídos</h3>
+          <span class="metric-badge metric-badge-gold">+15%</span>
+        </div>
+        <p class="metric-value">{{ analytics.pointsDistributed }}</p>
+        <p class="metric-description">10 pontos por ideia</p>
+      </div>
+      <div class="metric-card">
+        <div class="metric-header">
+          <h3 class="metric-title">Tempo Médio</h3>
+          <span class="metric-badge metric-badge-blue">-5%</span>
+        </div>
+        <p class="metric-value">{{ analytics.avgImplementationTime | number:'1.0-0' }}d</p>
+        <p class="metric-description">Para implementação</p>
+      </div>
+    </div>
+    
+    <!-- Gráficos e Estatísticas -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Ideias por Departamento -->
+      <div class="chart-card">
+        <h3 class="chart-title">Ideias por Departamento</h3>
+        <div class="chart-container">
+          @for (dept of analytics.ideasByDepartment; track dept.departamento) {
+            <div class="chart-bar-item">
+              <div class="chart-bar-label">{{ dept.departamento }}</div>
+              <div class="chart-bar-track">
+                <div class="chart-bar-fill" 
+                     [style.width.%]="(dept.count / analytics.totalIdeas) * 100">
+                  <span class="chart-bar-value">{{ dept.count }}</span>
                 </div>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <h3 class="metric-title">Total de Ideias</h3>
-                            <span class="metric-badge metric-badge-blue">+12%</span>
-                        </div>
-                        <p class="metric-value">{{ analytics.totalIdeas }}</p>
-                        <p class="metric-description">Desde o início do programa</p>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <h3 class="metric-title">Ideias Implementadas</h3>
-                            <span class="metric-badge metric-badge-green">+8%</span>
-                        </div>
-                        <p class="metric-value">{{ analytics.implementedIdeas }}</p>
-                        <p class="metric-description">26% do total</p>
-                    </div>
-                    <div class="metric-card">
-                        <div class="metric-header">
-                            <h3 class="metric-title">Pontos Distribuídos</h3>
-                            <span class="metric-badge metric-badge-gold">+15%</span>
-                        </div>
-                        <p class="metric-value">{{ analytics.pointsDistributed }}</p>
-                        <p class="metric-description">10 pontos por ideia</p>
-                    </div>
-                </div>
-                
-                <div class="analytics-top-employee">
-                  <h3 class="text-lg font-medium text-eurofarma-darkblue mb-4">Funcionário com Mais Pontos 🥇</h3>
-                  @if (analytics.topEmployee) {
-                    <div class="top-employee-card">
-                        <div class="top-employee-icon">{{ analytics.topEmployee.nome?.charAt(0) }}</div>
-                        <div class="top-employee-info">
-                            <p class="top-employee-name">{{ analytics.topEmployee.nome }}</p>
-                            <p class="top-employee-department">{{ analytics.topEmployee.departamento }}</p>
-                            <p class="top-employee-points">
-                                <i data-feather="star"></i> {{ analytics.topEmployee.pontos_gamificacao }} pontos
-                            </p>
-                        </div>
-                    </div>
-                  } @else {
-                      <div class="no-data-card">
-                          <p>Nenhum dado de funcionário encontrado.</p>
-                      </div>
-                  }
-                </div>
+              </div>
             </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Status das Ideias -->
+      <div class="chart-card">
+        <h3 class="chart-title">Status das Ideias</h3>
+        <div class="chart-pie-container">
+          @for (status of analytics.ideasByStatus; track status.status_ideia) {
+            <div class="chart-pie-item">
+              <div class="chart-pie-color" 
+                   [style.background]="getStatusColor(status.status_ideia)"></div>
+              <span class="chart-pie-label">{{ status.status_ideia }}</span>
+              <span class="chart-pie-value">{{ status.count }} ({{ (status.count / analytics.totalIdeas) * 100 | number:'1.1-1' }}%)</span>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    
+    <!-- Top Colaboradores e Departamentos -->
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+      <!-- Top 5 Colaboradores -->
+      <div class="chart-card">
+        <h3 class="chart-title">Top 5 Colaboradores 🏆</h3>
+        <div class="top-list">
+          @for (employee of analytics.topEmployees; track employee.nome; let i = $index) {
+            <div class="top-list-item">
+              <div class="top-list-rank">{{ i + 1 }}</div>
+              <div class="top-list-avatar">{{ employee.nome?.charAt(0) }}</div>
+              <div class="top-list-info">
+                <p class="top-list-name">{{ employee.nome }}</p>
+                <p class="top-list-detail">{{ employee.departamento }}</p>
+              </div>
+              <div class="top-list-points">
+                <i data-feather="star"></i> {{ employee.pontos_gamificacao }}
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      
+      <!-- Departamentos Mais Engajados -->
+      <div class="chart-card">
+        <h3 class="chart-title">Departamentos Mais Engajados</h3>
+        <div class="engagement-list">
+          @for (dept of analytics.activeDepts; track dept.departamento; let i = $index) {
+            <div class="engagement-item">
+              <div class="engagement-rank">{{ i + 1 }}</div>
+              <div class="engagement-info">
+                <p class="engagement-name">{{ dept.departamento }}</p>
+                <p class="engagement-detail">{{ dept.ideas_submitted }} ideias</p>
+              </div>
+              <div class="engagement-bar">
+                <div class="engagement-bar-fill" 
+                     [style.width.%]="(dept.ideas_submitted / analytics.totalIdeas) * 100">
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+    
+    <!-- Evolução Mensal -->
+    <div class="chart-card mb-8">
+      <h3 class="chart-title">Evolução Mensal de Ideias</h3>
+      <div class="monthly-chart">
+        @for (month of analytics.ideasByMonth; track month.month) {
+          <div class="monthly-bar">
+            <div class="monthly-bar-fill" 
+                 [style.height.%]="(month.count / getMaxMonthlyIdeas()) * 100">
+              <span class="monthly-bar-value">{{ month.count }}</span>
+            </div>
+            <span class="monthly-bar-label">{{ month.month | date:'MMM' }}</span>
+          </div>
         }
+      </div>
+    </div>
+  </div>
+}
         
         @if (showModal) {
             <div class="modal-overlay">

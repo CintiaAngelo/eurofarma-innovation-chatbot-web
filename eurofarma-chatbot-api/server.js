@@ -228,3 +228,122 @@ app.get('/api/gamification/top-employee', async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);
 });
+
+
+// Adicione estas rotas no server.js
+
+// Endpoint: Busca estatísticas completas de analytics
+app.get('/api/analytics/dashboard', async (req, res) => {
+  try {
+    // Total de ideias
+    const [totalIdeas] = await db.query('SELECT COUNT(*) as total FROM ideias');
+    
+    // Ideias por status
+    const [ideasByStatus] = await db.query(`
+      SELECT status_ideia, COUNT(*) as count 
+      FROM ideias 
+      GROUP BY status_ideia
+    `);
+    
+    // Ideias por departamento
+    const [ideasByDept] = await db.query(`
+      SELECT c.departamento, COUNT(*) as count 
+      FROM ideias i 
+      JOIN colaboradores c ON i.id_colaborador = c.id_colaborador 
+      GROUP BY c.departamento 
+      ORDER BY count DESC
+    `);
+    
+    // Ideias por mês (últimos 6 meses)
+    const [ideasByMonth] = await db.query(`
+      SELECT 
+        DATE_FORMAT(data_submissao, '%Y-%m') as month,
+        COUNT(*) as count
+      FROM ideias 
+      WHERE data_submissao >= DATE_SUB(NOW(), INTERVAL 6 MONTH)
+      GROUP BY DATE_FORMAT(data_submissao, '%Y-%m')
+      ORDER BY month
+    `);
+    
+    // Top 5 colaboradores
+    const [topEmployees] = await db.query(`
+      SELECT nome, departamento, pontos_gamificacao 
+      FROM colaboradores 
+      ORDER BY pontos_gamificacao DESC 
+      LIMIT 5
+    `);
+    
+    // Pontos distribuídos no total
+    const [totalPoints] = await db.query(`
+      SELECT SUM(pontos_ganhos) as total_points 
+      FROM gamificacao_log
+    `);
+    
+    // Taxa de implementação
+    const [implementationRate] = await db.query(`
+      SELECT 
+        COUNT(*) as total,
+        SUM(CASE WHEN status_ideia = 'Implementada' THEN 1 ELSE 0 END) as implemented
+      FROM ideias
+    `);
+
+    res.json({
+      totalIdeas: totalIdeas[0].total,
+      ideasByStatus,
+      ideasByDepartment: ideasByDept,
+      ideasByMonth,
+      topEmployees,
+      totalPoints: totalPoints[0].total_points || 0,
+      implementationRate: implementationRate[0].implemented / implementationRate[0].total * 100 || 0,
+      implementedIdeas: implementationRate[0].implemented || 0
+    });
+  } catch (err) {
+    console.error('Erro ao buscar dados de analytics:', err);
+    res.status(500).json({ error: 'Erro interno no servidor.' });
+  }
+});
+
+// Endpoint: Busca métricas de engajamento
+app.get('/api/analytics/engagement', async (req, res) => {
+  try {
+    // Colaboradores mais ativos
+    const [activeUsers] = await db.query(`
+      SELECT c.nome, c.departamento, COUNT(i.id_ideia) as ideas_submitted
+      FROM colaboradores c
+      LEFT JOIN ideias i ON c.id_colaborador = i.id_colaborador
+      GROUP BY c.id_colaborador, c.nome, c.departamento
+      HAVING ideas_submitted > 0
+      ORDER BY ideas_submitted DESC
+      LIMIT 10
+    `);
+
+    // Departamentos mais engajados
+    const [activeDepts] = await db.query(`
+      SELECT c.departamento, COUNT(i.id_ideia) as ideas_submitted
+      FROM colaboradores c
+      LEFT JOIN ideias i ON c.id_colaborador = i.id_colaborador
+      GROUP BY c.departamento
+      HAVING ideas_submitted > 0
+      ORDER BY ideas_submitted DESC
+    `);
+
+    // Tempo médio desde submissão até implementação
+    const [avgImplementationTime] = await db.query(`
+      SELECT AVG(DATEDIFF(
+        (SELECT MAX(data_mudanca_status) FROM ideias_historico WHERE id_ideia = i.id_ideia AND status_ideia = 'Implementada'),
+        i.data_submissao
+      )) as avg_days
+      FROM ideias i
+      WHERE i.status_ideia = 'Implementada'
+    `);
+
+    res.json({
+      activeUsers,
+      activeDepts,
+      avgImplementationTime: avgImplementationTime[0]?.avg_days || 0
+    });
+  } catch (err) {
+    console.error('Erro ao buscar métricas de engajamento:', err);
+    res.status(500).json({ error: 'Erro interno no servidor.' });
+  }
+});
