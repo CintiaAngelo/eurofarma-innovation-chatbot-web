@@ -9,7 +9,7 @@ import { IdeaFormComponent } from './component/idea-form/idea-form.component/ide
 
 export const routes: Routes = [
   { path: '', component: LoginComponent },
-  { path: 'chat', component: ChatbotComponent },
+  { path: 'chat', component: ChatbotComponent},
   { path: 'login', component: LoginComponent },
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuard] },
   { path: 'submit-idea', component: IdeaFormComponent } // Adicione a nova rota

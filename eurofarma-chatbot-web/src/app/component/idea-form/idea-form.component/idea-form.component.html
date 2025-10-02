@@ -110,7 +110,7 @@
             </div>
             
             <div class="form-terms">
-              <input type="checkbox" id="terms" name="terms" required class="form-checkbox">
+              <input type="checkbox" id="terms" name="terms" [(ngModel)]="termsAccepted" required class="form-checkbox">
               <label for="terms" class="form-checkbox-label">Concordo com os termos de uso e confirmo que esta ideia é original e de minha autoria.</label>
             </div>
             
@@ -134,7 +134,9 @@
               <h3 class="confirmation-title">Ideia enviada com sucesso!</h3>
               <p class="confirmation-message">Obrigado por contribuir com a inovação na Eurofarma. Você ganhou 10 pontos!</p>
               <div class="confirmation-actions">
-                <a routerLink="/" class="confirmation-link-chat">Voltar ao chat</a>
+                <button type="button" (click)="goToChat()" class="confirmation-link-chat">
+                  Voltar ao chat
+                </button>
                 <button type="button" (click)="resetForm()" class="confirmation-btn-new">
                   Enviar outra ideia
                 </button>

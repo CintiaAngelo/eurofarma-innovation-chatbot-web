@@ -3,14 +3,14 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ChatbotService } from '../../../services/chatbot.service';
-import { AuthService } from '../../../services/auth.service'; // Se necessário para lógica de autenticação
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-idea-form',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './idea-form.component.html',
   styleUrls: ['./idea-form.component.css']
 })
@@ -26,19 +26,16 @@ export class IdeaFormComponent implements OnInit {
     ideaDescription: ''
   };
   success = false;
+  termsAccepted = false;
 
   constructor(
     private chatbotService: ChatbotService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
-    // Lógica para pré-popular o formulário se o usuário estiver logado
-    // Exemplo:
-    // if (this.authService.isLogged) {
-    //   this.formData.name = this.authService.userName;
-    //   this.formData.email = this.authService.userEmail;
-    // }
+    console.log('IdeaFormComponent inicializado');
   }
 
   nextStep(): void {
@@ -67,16 +64,24 @@ export class IdeaFormComponent implements OnInit {
   }
 
   onSubmit(): void {
+    console.log('Enviando dados do formulário:', this.formData);
+
+    if (!this.termsAccepted) {
+      alert('Você deve aceitar os termos de uso para enviar a ideia.');
+      return;
+    }
+
     this.chatbotService.submitIdea(this.formData).subscribe({
       next: (response: any) => {
+        console.log('Resposta do servidor:', response);
         this.success = true;
         this.currentStep = 4;
         this.updateProgressBar();
       },
       error: (error) => {
-        const errorMessage = error.error?.error || 'Erro ao enviar a ideia. Tente novamente.';
+        console.error('Erro completo:', error);
+        const errorMessage = error.error?.error || error.message || 'Erro ao enviar a ideia. Tente novamente.';
         alert(errorMessage);
-        console.error('Erro:', error);
       }
     });
   }
@@ -92,6 +97,11 @@ export class IdeaFormComponent implements OnInit {
       ideaTitle: '',
       ideaDescription: ''
     };
+    this.termsAccepted = false;
     this.success = false;
+  }
+
+  goToChat(): void {
+    this.router.navigate(['/']);
   }
 }

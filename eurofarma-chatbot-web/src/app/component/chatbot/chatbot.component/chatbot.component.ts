@@ -3,7 +3,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ChatbotService } from '../../../services/chatbot.service';
 import { AuthService } from '../../../services/auth.service';
 import { Subscription } from 'rxjs';
@@ -11,7 +11,7 @@ import { Subscription } from 'rxjs';
 @Component({
   selector: 'app-chatbot',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   templateUrl: './chatbot.component.html',
   styleUrls: ['./chatbot.component.css']
 })
@@ -23,7 +23,8 @@ export class ChatbotComponent implements OnInit, OnDestroy {
 
   constructor(
     private chatbotService: ChatbotService,
-    private authService: AuthService
+    private authService: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -42,7 +43,7 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       next: response => {
         this.addBotMessage(response.message);
         if (response.newsletter) {
-            this.addBotMessage(response.newsletter.conteudo_clob);
+            this.addBotMessage(`<strong>${response.newsletter.titulo}</strong><br>${response.newsletter.conteudo_clob}`);
         }
         if (response.prompt_idea) {
             this.addBotMessage(response.prompt_idea, [response.button_text]);
@@ -70,6 +71,10 @@ export class ChatbotComponent implements OnInit, OnDestroy {
     }
   }
 
+  handleIdeaButton(): void {
+    this.router.navigate(['/submit-idea']);
+  }
+
   addBotMessage(text: string, options?: string[]): void {
     this.chatMessages.push({ sender: 'bot', text, options });
   }
@@ -90,4 +95,21 @@ export class ChatbotComponent implements OnInit, OnDestroy {
       this.chatMessages.splice(index, 1);
     }
   }
+
+  // No seu componente do chatbot
+loadLatestNewsletter(): void {
+  this.chatbotService.getChatbotInit().subscribe({
+    next: (data) => {
+      if (data.newsletter) {
+        // Adicionar a newsletter como mensagem do bot
+        this.addBotMessage(data.newsletter.titulo + ': ' + data.newsletter.conteudo_clob);
+      }
+    },
+    error: (err) => {
+      console.error('Erro ao carregar newsletter:', err);
+    }
+  });
+}
+
+  
 }

@@ -1,3 +1,4 @@
+<!-- src/app/chatbot/chatbot.component.html -->
 <main class="chat-container-main">
     <div class="chatbot-card">
         <div class="chat-header">
@@ -9,19 +10,27 @@
             </div>
         </div>
         
-        <div class="chat-window" id="chatWindow">
-            @for (message of chatMessages; track message.text) {
+        <div class="chat-window" #chatWindow>
+            @for (message of chatMessages; track message.text + $index) {
                 <div class="chat-message" [ngClass]="{'user-message': message.sender === 'user', 'bot-message': message.sender === 'bot'}">
                     @if (!message.isTyping) {
-                        <p [innerHTML]="message.text"></p>
+                        <div [innerHTML]="message.text"></div>
                     } @else {
-                        <p class="typing-indicator">Digitando...</p>
+                        <div class="typing-indicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
                     }
                     
                     @if (message.options && message.options.length > 0) {
-                        <a routerLink="/submit-idea" class="action-button">
-                            {{ message.options[0] }}
-                        </a>
+                        <div class="options-container">
+                            @for (option of message.options; track option) {
+                                <button (click)="handleIdeaButton()" class="action-button">
+                                    {{ option }}
+                                </button>
+                            }
+                        </div>
                     }
                 </div>
             }
@@ -29,9 +38,15 @@
         
         <div class="chat-input-area">
             <div class="input-group">
-                <input type="text" [(ngModel)]="userInput" (keyup.enter)="handleUserInput()" placeholder="Digite sua mensagem..." class="chat-input">
+                <input 
+                    type="text" 
+                    [(ngModel)]="userInput" 
+                    (keyup.enter)="handleUserInput()" 
+                    placeholder="Digite sua mensagem..." 
+                    class="chat-input"
+                >
                 <button (click)="handleUserInput()" class="send-button">
-                    <i data-feather="send"></i>
+                    <i class="fas fa-paper-plane"></i>
                 </button>
             </div>
         </div>

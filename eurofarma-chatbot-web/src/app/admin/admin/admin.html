@@ -1,5 +1,14 @@
+<!-- src/app/admin/admin.html -->
 <main class="admin-container">
     <div class="admin-card">
+        <!-- Header estilo Eurofarma -->
+        <div class="admin-header">
+            <div class="header-content">
+                <i class="fas fa-message"></i>
+                <h1 class="header-title">Eurofarma Innovation Hub</h1>
+            </div>
+        </div>
+
         <div class="tab-header">
             <nav class="tab-navigation">
                 <button (click)="selectTab('newsletters')" class="tab-button"
@@ -17,35 +26,79 @@
             </nav>
         </div>
         
+        <!-- TAB NEWSLETTERS -->
         @if (activeTab === 'newsletters') {
-            <div class="tab-content" [class.active]="activeTab === 'newsletters'">
+            <div class="tab-content active">
                 <div class="tab-content-header">
-                    <h2 class="tab-title">Newsletters Semanais</h2>
+                    <h2 class="tab-title">Gerenciar Newsletters</h2>
                     <button (click)="openNewsletterModal()" class="action-button">
-                        <i data-feather="plus"></i> Nova Newsletter
+                        <i class="fas fa-plus"></i> Nova Newsletter
                     </button>
                 </div>
-                <div class="table-container">
+                
+                <div class="table-wrapper">
                     <table class="data-table">
                         <thead class="table-header">
                             <tr>
-                                <th>Data</th>
-                                <th>Título</th>
-                                <th>Status</th>
-                                <th>Ações</th>
+                                <th class="table-th">ID</th>
+                                <th class="table-th">Título</th>
+                                <th class="table-th">Status</th>
+                                <th class="table-th">Ações</th>
                             </tr>
                         </thead>
                         <tbody class="table-body">
                             @for (item of newsletters; track item.id_newsletter) {
-                                <tr>
-                                    <td>{{ item.data_envio_programada | date: 'dd/MM/yyyy' }}</td>
-                                    <td>{{ item.titulo }}</td>
-                                    <td>
-                                        <span class="status-badge status-sent">{{ item.status_envio }}</span>
+                                <tr class="table-row">
+                                    <td class="table-td">
+                                        <span class="newsletter-id">#{{ item.id_newsletter }}</span>
                                     </td>
-                                    <td>
-                                        <button class="action-icon-button"><i data-feather="eye"></i></button>
-                                        <button class="action-icon-button action-edit"><i data-feather="edit"></i></button>
+                                    <td class="table-td">
+                                        <div class="newsletter-info">
+                                            <strong class="newsletter-title-text">{{ item.titulo }}</strong>
+                                            @if (item.conteudo) {
+                                                <div class="newsletter-preview">
+                                                    {{ (item.conteudo || item.conteudo_clob || '').substring(0, 80) }}...
+                                                </div>
+                                            }
+                                        </div>
+                                    </td>
+                                    <td class="table-td">
+                                        <span class="status-badge" 
+                                              [ngClass]="getStatusClass(item.status_envio)">
+                                            {{ getStatusText(item.status_envio) }}
+                                        </span>
+                                    </td>
+                                    <td class="table-td">
+                                        <div class="action-buttons-container">
+                                            <button (click)="editNewsletterDescription(item)" 
+                                                    class="action-icon-button action-edit" 
+                                                    title="Editar descrição">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                            <button (click)="deleteNewsletter(item)" 
+                                                    class="action-icon-button action-delete" 
+                                                    title="Apagar newsletter">
+                                                <i class="fas fa-trash"></i>
+                                            </button>
+                                            <button (click)="resendNewsletter(item)" 
+                                                    class="action-icon-button action-resend" 
+                                                    title="Reenviar para chatbot">
+                                                <i class="fas fa-paper-plane"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            @if (newsletters.length === 0) {
+                                <tr class="table-row">
+                                    <td colspan="4" class="table-td text-center">
+                                        <div class="empty-state">
+                                            <i class="fas fa-newspaper empty-icon"></i>
+                                            <p class="empty-text">Nenhuma newsletter encontrada.</p>
+                                            <button (click)="openNewsletterModal()" class="action-button">
+                                                <i class="fas fa-plus"></i> Criar Primeira Newsletter
+                                            </button>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -55,10 +108,11 @@
             </div>
         }
 
+        <!-- TAB IDEAS -->
         @if (activeTab === 'ideas') {
-            <div class="tab-content" [class.active]="activeTab === 'ideas'">
+            <div class="tab-content active">
                 <div class="tab-content-header">
-                    <h2 class="tab-title">Ideias Recebidas</h2>
+                    <h2 class="tab-title">Ideias Recebidas dos Colaboradores</h2>
                     <div class="filter-controls">
                         <div class="select-wrapper">
                             <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFiltersAndSort()">
@@ -67,7 +121,7 @@
                                   <option [value]="status">{{ status }}</option>
                                 }
                             </select>
-                            <i data-feather="chevron-down"></i>
+                            <i class="fas fa-chevron-down"></i>
                         </div>
                         <div class="select-wrapper">
                             <select class="filter-select" [(ngModel)]="sortOrder" (change)="applyFiltersAndSort()">
@@ -75,49 +129,81 @@
                                 <option value="data-asc">Ordenar por data (mais antiga)</option>
                                 <option value="departamento">Ordenar por Departamento</option>
                             </select>
-                            <i data-feather="chevron-down"></i>
+                            <i class="fas fa-chevron-down"></i>
                         </div>
                     </div>
                 </div>
-                <div class="table-container">
+                
+                <div class="table-wrapper">
                     <table class="data-table">
                         <thead class="table-header">
                             <tr>
-                                <th>Data</th>
-                                <th>Colaborador</th>
-                                <th>Departamento</th>
-                                <th>Ideia</th>
-                                <th>Status</th>
-                                <th>Ações</th>
+                                <th class="table-th">Data</th>
+                                <th class="table-th">Colaborador</th>
+                                <th class="table-th">Departamento</th>
+                                <th class="table-th">Título da Ideia</th>
+                                <th class="table-th">Status</th>
+                                <th class="table-th">Ações</th>
                             </tr>
                         </thead>
                         <tbody class="table-body">
                             @for (idea of paginatedIdeas; track idea.id_ideia) {
-                                <tr>
-                                    <td>{{ idea.data_submissao | date: 'dd/MM/yyyy' }}</td>
-                                    <td>
-                                        <div class="user-name">{{ idea.nome }}</div>
-                                        <div class="user-email">{{ idea.email }}</div>
+                                <tr class="table-row">
+                                    <td class="table-td">
+                                        <div class="idea-date">
+                                            {{ idea.data_submissao | date: 'dd/MM/yyyy' }}
+                                        </div>
                                     </td>
-                                    <td>{{ idea.departamento }}</td>
-                                    <td>
-                                        <div class="idea-title">{{ idea.titulo_ideia }}</div>
+                                    <td class="table-td">
+                                        <div class="user-info">
+                                            <div class="user-avatar">
+                                                {{ idea.nome?.charAt(0) }}
+                                            </div>
+                                            <div class="user-details">
+                                                <div class="user-name">{{ idea.nome }}</div>
+                                                <div class="user-email">{{ idea.email }}</div>
+                                            </div>
+                                        </div>
                                     </td>
-                                    <td>
-                                        <span class="status-badge"
-                                            [ngClass]="{
-                                                'status-submitted': idea.status_ideia === 'Submetida',
-                                                'status-review': idea.status_ideia === 'Em análise',
-                                                'status-received': idea.status_ideia === 'Recebida',
-                                                'status-implemented': idea.status_ideia === 'Implementada',
-                                                'status-sent': idea.status_ideia === 'Aprovada'
-                                            }">
-                                            {{ idea.status_ideia }}
-                                        </span>
+                                    <td class="table-td">
+                                        <span class="department-badge">{{ idea.departamento }}</span>
                                     </td>
-                                    <td>
-                                        <button (click)="viewIdea(idea)" class="action-icon-button"><i data-feather="eye"></i></button>
-                                        <button (click)="editIdea(idea)" class="action-icon-button action-edit"><i data-feather="edit"></i></button>
+                                    <td class="table-td">
+                                        <div class="idea-content">
+                                            <div class="idea-title">{{ idea.titulo_ideia }}</div>
+                                            <div class="idea-description">
+                                                {{ (idea.descricao_ideia_clob || '').substring(0, 100) }}...
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="table-td">
+                                        <select [(ngModel)]="idea.status_ideia" 
+                                                (change)="updateIdeaStatus(idea)"
+                                                class="status-select">
+                                            @for (status of ideaStatuses; track status) {
+                                                <option [value]="status">{{ status }}</option>
+                                            }
+                                        </select>
+                                    </td>
+                                    <td class="table-td">
+                                        <div class="action-buttons-container">
+                                            <button (click)="viewIdea(idea)" class="action-icon-button action-view" title="Visualizar ideia">
+                                                <i class="fas fa-eye"></i>
+                                            </button>
+                                            <button (click)="editIdea(idea)" class="action-icon-button action-edit" title="Editar ideia">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            }
+                            @if (paginatedIdeas.length === 0) {
+                                <tr class="table-row">
+                                    <td colspan="6" class="table-td text-center">
+                                        <div class="empty-state">
+                                            <i class="fas fa-lightbulb empty-icon"></i>
+                                            <p class="empty-text">Nenhuma ideia recebida.</p>
+                                        </div>
                                     </td>
                                 </tr>
                             }
@@ -128,208 +214,412 @@
                 @if (totalItems > itemsPerPage) {
                   <div class="pagination-controls">
                       <div class="pagination-info">
-                          Mostrando <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> a <span class="font-medium">{{ (currentPage * itemsPerPage) > totalItems ? totalItems : (currentPage * itemsPerPage) }}</span> de <span class="font-medium">{{ totalItems }}</span> resultados
+                          Mostrando <span class="font-medium">{{ (currentPage - 1) * itemsPerPage + 1 }}</span> 
+                          a <span class="font-medium">{{ (currentPage * itemsPerPage) > totalItems ? totalItems : (currentPage * itemsPerPage) }}</span> 
+                          de <span class="font-medium">{{ totalItems }}</span> resultados
                       </div>
                       <div class="pagination-buttons">
-                          <button (click)="prevPage()" [disabled]="currentPage === 1" class="pagination-btn">Anterior</button>
+                          <button (click)="prevPage()" [disabled]="currentPage === 1" class="pagination-btn">
+                              <i class="fas fa-chevron-left"></i> Anterior
+                          </button>
                           @for (page of visiblePages; track page) {
-                              <button (click)="goToPage(page)" [class.active]="currentPage === page" class="pagination-btn pagination-number-btn">{{ page }}</button>
+                              <button (click)="goToPage(page)" [class.active]="currentPage === page" class="pagination-btn pagination-number-btn">
+                                  {{ page }}
+                              </button>
                           }
-                          <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="pagination-btn">Próxima</button>
+                          <button (click)="nextPage()" [disabled]="currentPage === totalPages" class="pagination-btn">
+                              Próxima <i class="fas fa-chevron-right"></i>
+                          </button>
                       </div>
                   </div>
                 }
             </div>
         }
 
-@if (activeTab === 'analytics') {
-  <div class="tab-content" [class.active]="activeTab === 'analytics'">
-    <h2 class="tab-title">Analytics</h2>
-    
-    <!-- Métricas Principais -->
-    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-      <div class="metric-card">
-        <div class="metric-header">
-          <h3 class="metric-title">Total de Ideias</h3>
-          <span class="metric-badge metric-badge-blue">+12%</span>
-        </div>
-        <p class="metric-value">{{ analytics.totalIdeas }}</p>
-        <p class="metric-description">Desde o início do programa</p>
-      </div>
-      <div class="metric-card">
-        <div class="metric-header">
-          <h3 class="metric-title">Ideias Implementadas</h3>
-          <span class="metric-badge metric-badge-green">+8%</span>
-        </div>
-        <p class="metric-value">{{ analytics.implementedIdeas }}</p>
-        <p class="metric-description">{{ analytics.implementationRate | number:'1.1-1' }}% do total</p>
-      </div>
-      <div class="metric-card">
-        <div class="metric-header">
-          <h3 class="metric-title">Pontos Distribuídos</h3>
-          <span class="metric-badge metric-badge-gold">+15%</span>
-        </div>
-        <p class="metric-value">{{ analytics.pointsDistributed }}</p>
-        <p class="metric-description">10 pontos por ideia</p>
-      </div>
-      <div class="metric-card">
-        <div class="metric-header">
-          <h3 class="metric-title">Tempo Médio</h3>
-          <span class="metric-badge metric-badge-blue">-5%</span>
-        </div>
-        <p class="metric-value">{{ analytics.avgImplementationTime | number:'1.0-0' }}d</p>
-        <p class="metric-description">Para implementação</p>
-      </div>
-    </div>
-    
-    <!-- Gráficos e Estatísticas -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Ideias por Departamento -->
-      <div class="chart-card">
-        <h3 class="chart-title">Ideias por Departamento</h3>
-        <div class="chart-container">
-          @for (dept of analytics.ideasByDepartment; track dept.departamento) {
-            <div class="chart-bar-item">
-              <div class="chart-bar-label">{{ dept.departamento }}</div>
-              <div class="chart-bar-track">
-                <div class="chart-bar-fill" 
-                     [style.width.%]="(dept.count / analytics.totalIdeas) * 100">
-                  <span class="chart-bar-value">{{ dept.count }}</span>
+        <!-- TAB ANALYTICS -->
+        @if (activeTab === 'analytics') {
+            <div class="tab-content active">
+                <div class="tab-content-header">
+                    <h2 class="tab-title">Analytics de Engajamento</h2>
+                    <div class="flex gap-2">
+                        <button (click)="refreshAnalytics()" [disabled]="isLoadingAnalytics" class="action-button">
+                            @if (isLoadingAnalytics) {
+                                <i class="fas fa-sync-alt fa-spin"></i> Atualizando...
+                            } @else {
+                                <i class="fas fa-sync-alt"></i> Atualizar Dados
+                            }
+                        </button>
+                        <button (click)="hardRefresh()" class="action-button secondary">
+                            <i class="fas fa-redo"></i> Recarregar Página
+                        </button>
+                    </div>
                 </div>
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-      
-      <!-- Status das Ideias -->
-      <div class="chart-card">
-        <h3 class="chart-title">Status das Ideias</h3>
-        <div class="chart-pie-container">
-          @for (status of analytics.ideasByStatus; track status.status_ideia) {
-            <div class="chart-pie-item">
-              <div class="chart-pie-color" 
-                   [style.background]="getStatusColor(status.status_ideia)"></div>
-              <span class="chart-pie-label">{{ status.status_ideia }}</span>
-              <span class="chart-pie-value">{{ status.count }} ({{ (status.count / analytics.totalIdeas) * 100 | number:'1.1-1' }}%)</span>
-            </div>
-          }
-        </div>
-      </div>
-    </div>
-    
-    <!-- Top Colaboradores e Departamentos -->
-    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-      <!-- Top 5 Colaboradores -->
-      <div class="chart-card">
-        <h3 class="chart-title">Top 5 Colaboradores 🏆</h3>
-        <div class="top-list">
-          @for (employee of analytics.topEmployees; track employee.nome; let i = $index) {
-            <div class="top-list-item">
-              <div class="top-list-rank">{{ i + 1 }}</div>
-              <div class="top-list-avatar">{{ employee.nome?.charAt(0) }}</div>
-              <div class="top-list-info">
-                <p class="top-list-name">{{ employee.nome }}</p>
-                <p class="top-list-detail">{{ employee.departamento }}</p>
-              </div>
-              <div class="top-list-points">
-                <i data-feather="star"></i> {{ employee.pontos_gamificacao }}
-              </div>
-            </div>
-          }
-        </div>
-      </div>
-      
-      <!-- Departamentos Mais Engajados -->
-      <div class="chart-card">
-        <h3 class="chart-title">Departamentos Mais Engajados</h3>
-        <div class="engagement-list">
-          @for (dept of analytics.activeDepts; track dept.departamento; let i = $index) {
-            <div class="engagement-item">
-              <div class="engagement-rank">{{ i + 1 }}</div>
-              <div class="engagement-info">
-                <p class="engagement-name">{{ dept.departamento }}</p>
-                <p class="engagement-detail">{{ dept.ideas_submitted }} ideias</p>
-              </div>
-              <div class="engagement-bar">
-                <div class="engagement-bar-fill" 
-                     [style.width.%]="(dept.ideas_submitted / analytics.totalIdeas) * 100">
+                
+                <!-- Métricas Principais -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">
+                                <i class="fas fa-lightbulb"></i> Total de Ideias
+                            </h3>
+                            <span class="metric-badge metric-badge-blue">
+                                <i class="fas fa-arrow-up"></i> +12%
+                            </span>
+                        </div>
+                        <p class="metric-value">{{ analytics.totalIdeas }}</p>
+                        <p class="metric-description">Desde o início do programa</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">
+                                <i class="fas fa-rocket"></i> Ideias Implementadas
+                            </h3>
+                            <span class="metric-badge metric-badge-green">
+                                <i class="fas fa-arrow-up"></i> +8%
+                            </span>
+                        </div>
+                        <p class="metric-value">{{ analytics.implementedIdeas }}</p>
+                        <p class="metric-description">{{ analytics.implementationRate | number:'1.1-1' }}% do total</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">
+                                <i class="fas fa-star"></i> Pontos Distribuídos
+                            </h3>
+                            <span class="metric-badge metric-badge-gold">
+                                <i class="fas fa-arrow-up"></i> +15%
+                            </span>
+                        </div>
+                        <p class="metric-value">{{ analytics.pointsDistributed }}</p>
+                        <p class="metric-description">Total acumulado</p>
+                    </div>
+                    <div class="metric-card">
+                        <div class="metric-header">
+                            <h3 class="metric-title">
+                                <i class="fas fa-comments"></i> Interações
+                            </h3>
+                            <span class="metric-badge metric-badge-blue">
+                                <i class="fas fa-arrow-up"></i> +20%
+                            </span>
+                        </div>
+                        <p class="metric-value">{{ analytics.totalInteractions }}</p>
+                        <p class="metric-description">{{ analytics.uniqueUsers }} usuários únicos</p>
+                    </div>
                 </div>
-              </div>
+                
+                <!-- Gráficos e Estatísticas -->
+                <div class="charts-grid">
+                    <!-- Ideias por Departamento -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">
+                            <i class="fas fa-building"></i> Ideias por Departamento
+                        </h3>
+                        <div class="chart-container">
+                            @if (analytics.ideasByDepartment.length > 0) {
+                                @for (dept of analytics.ideasByDepartment; track dept.departamento) {
+                                    <div class="chart-bar-item">
+                                        <div class="chart-bar-label">{{ dept.departamento }}</div>
+                                        <div class="chart-bar-track">
+                                            <div class="chart-bar-fill" 
+                                                 [style.width.%]="(dept.count / analytics.totalIdeas) * 100">
+                                                <span class="chart-bar-value">{{ dept.count }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            } @else {
+                                <div class="no-data-placeholder">
+                                    <i class="fas fa-bar-chart"></i>
+                                    <p>Nenhum dado disponível</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    <!-- Status das Ideias -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-pie"></i> Status das Ideias
+                        </h3>
+                        <div class="chart-pie-container">
+                            @if (analytics.ideasByStatus.length > 0) {
+                                @for (status of analytics.ideasByStatus; track status.status_ideia) {
+                                    <div class="chart-pie-item">
+                                        <div class="chart-pie-color" 
+                                             [style.background]="getStatusColor(status.status_ideia)"></div>
+                                        <span class="chart-pie-label">{{ status.status_ideia }}</span>
+                                        <span class="chart-pie-value">{{ status.count }} ({{ (status.count / analytics.totalIdeas) * 100 | number:'1.1-1' }}%)</span>
+                                    </div>
+                                }
+                            } @else {
+                                <div class="no-data-placeholder">
+                                    <i class="fas fa-pie-chart"></i>
+                                    <p>Nenhum dado disponível</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Distribuição de Pontos -->
+                <div class="charts-grid">
+                    <!-- Pontos por Tipo -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">
+                            <i class="fas fa-award"></i> Pontos por Tipo
+                        </h3>
+                        <div class="chart-container">
+                            @if (analytics.pointsByType && analytics.pointsByType.length > 0) {
+                                @for (pointType of analytics.pointsByType; track pointType.tipo_referencia) {
+                                    <div class="chart-bar-item">
+                                        <div class="chart-bar-label">{{ pointType.tipo_referencia }}</div>
+                                        <div class="chart-bar-track">
+                                            <div class="chart-bar-fill points-fill" 
+                                                 [style.width.%]="(pointType.total_points / analytics.pointsDistributed) * 100">
+                                                <span class="chart-bar-value">{{ pointType.total_points }}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            } @else {
+                                <div class="no-data-placeholder">
+                                    <i class="fas fa-award"></i>
+                                    <p>Nenhum dado de pontos disponível</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    <!-- Evolução Mensal de Pontos -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-line"></i> Evolução Mensal de Pontos
+                        </h3>
+                        <div class="monthly-chart">
+                            @if (analytics.pointsHistory && analytics.pointsHistory.length > 0) {
+                                @for (pointMonth of analytics.pointsHistory; track pointMonth.month) {
+                                    <div class="monthly-bar">
+                                        <div class="monthly-bar-fill points-monthly-fill" 
+                                             [style.height.%]="(pointMonth.total_points / getMaxMonthlyPoints()) * 100">
+                                            <span class="monthly-bar-value">{{ pointMonth.total_points }}</span>
+                                        </div>
+                                        <span class="monthly-bar-label">{{ formatMonthLabel(pointMonth.month) }}</span>
+                                    </div>
+                                }
+                            } @else {
+                                <div class="no-data-placeholder">
+                                    <i class="fas fa-trending-up"></i>
+                                    <p>Nenhum dado histórico disponível</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Top Colaboradores e Departamentos -->
+                <div class="charts-grid">
+                    <!-- Top 5 Colaboradores -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">
+                            <i class="fas fa-trophy"></i> Top 5 Colaboradores 🏆
+                        </h3>
+                        <div class="top-list">
+                            @if (analytics.topEmployees && analytics.topEmployees.length > 0) {
+                                @for (employee of analytics.topEmployees; track employee.nome; let i = $index) {
+                                    <div class="top-list-item">
+                                        <div class="top-list-rank" [ngClass]="getRankClass(i + 1)">{{ i + 1 }}</div>
+                                        <div class="top-list-avatar">{{ employee.nome?.charAt(0) }}</div>
+                                        <div class="top-list-info">
+                                            <p class="top-list-name">{{ employee.nome }}</p>
+                                            <p class="top-list-detail">{{ employee.departamento }}</p>
+                                        </div>
+                                        <div class="top-list-points">
+                                            <i class="fas fa-star"></i> {{ employee.pontos_gamificacao }}
+                                        </div>
+                                    </div>
+                                }
+                            } @else {
+                                <div class="no-data-placeholder">
+                                    <i class="fas fa-users"></i>
+                                    <p>Nenhum colaborador encontrado</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                    
+                    <!-- Departamentos Mais Engajados -->
+                    <div class="chart-card">
+                        <h3 class="chart-title">
+                            <i class="fas fa-chart-line"></i> Departamentos Mais Engajados
+                        </h3>
+                        <div class="engagement-list">
+                            @if (analytics.activeDepts && analytics.activeDepts.length > 0) {
+                                @for (dept of analytics.activeDepts; track dept.departamento; let i = $index) {
+                                    <div class="engagement-item">
+                                        <div class="engagement-rank" [ngClass]="getRankClass(i + 1)">{{ i + 1 }}</div>
+                                        <div class="engagement-info">
+                                            <p class="engagement-name">{{ dept.departamento }}</p>
+                                            <p class="engagement-detail">{{ dept.ideas_submitted }} ideias</p>
+                                        </div>
+                                        <div class="engagement-bar">
+                                            <div class="engagement-bar-fill" 
+                                                 [style.width.%]="(dept.ideas_submitted / analytics.totalIdeas) * 100">
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            } @else {
+                                <div class="no-data-placeholder">
+                                    <i class="fas fa-trending-up"></i>
+                                    <p>Nenhum dado de engajamento</p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Colaboradores Mais Ativos -->
+                <div class="chart-card full-width">
+                    <h3 class="chart-title">
+                        <i class="fas fa-bolt"></i> Colaboradores Mais Ativos 💡
+                    </h3>
+                    <div class="active-users-grid">
+                        @if (analytics.activeUsers && analytics.activeUsers.length > 0) {
+                            @for (user of analytics.activeUsers; track user.nome; let i = $index) {
+                                <div class="active-user-card">
+                                    <div class="active-user-header">
+                                        <div class="active-user-avatar">{{ user.nome?.charAt(0) }}</div>
+                                        <div class="active-user-info">
+                                            <p class="active-user-name">{{ user.nome }}</p>
+                                            <p class="active-user-department">{{ user.departamento }}</p>
+                                        </div>
+                                        <div class="active-user-badge">{{ i + 1 }}</div>
+                                    </div>
+                                    <div class="active-user-stats">
+                                        <div class="active-user-stat">
+                                            <i class="fas fa-lightbulb"></i>
+                                            <span>{{ user.ideas_submitted }} ideias</span>
+                                        </div>
+                                        <div class="active-user-stat">
+                                            <i class="fas fa-star"></i>
+                                            <span>{{ user.ideas_submitted * 10 }} pontos</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                        } @else {
+                            <div class="no-data-placeholder full-width">
+                                <i class="fas fa-users"></i>
+                                <p>Nenhum dado de colaboradores ativos</p>
+                            </div>
+                        }
+                    </div>
+                </div>
+                
+                <!-- Funcionário Destaque -->
+                <div class="top-employee-section">
+                    <h3 class="section-title">
+                        <i class="fas fa-crown"></i> Funcionário com Mais Pontos 🥇
+                    </h3>
+                    @if (analytics.topEmployee) {
+                        <div class="top-employee-card">
+                            <div class="top-employee-icon">{{ analytics.topEmployee.nome?.charAt(0) }}</div>
+                            <div class="top-employee-info">
+                                <p class="top-employee-name">{{ analytics.topEmployee.nome }}</p>
+                                <p class="top-employee-department">{{ analytics.topEmployee.departamento }}</p>
+                                <p class="top-employee-points">
+                                    <i class="fas fa-star"></i> {{ analytics.topEmployee.pontos_gamificacao }} pontos
+                                </p>
+                            </div>
+                            <div class="top-employee-badge">
+                                <i class="fas fa-award"></i>
+                            </div>
+                        </div>
+                    } @else {
+                        <div class="no-data-card">
+                            <i class="fas fa-user-times"></i>
+                            <p>Nenhum dado de funcionário encontrado.</p>
+                        </div>
+                    }
+                </div>
             </div>
-          }
-        </div>
-      </div>
-    </div>
-    
-    <!-- Evolução Mensal -->
-    <div class="chart-card mb-8">
-      <h3 class="chart-title">Evolução Mensal de Ideias</h3>
-      <div class="monthly-chart">
-        @for (month of analytics.ideasByMonth; track month.month) {
-          <div class="monthly-bar">
-            <div class="monthly-bar-fill" 
-                 [style.height.%]="(month.count / getMaxMonthlyIdeas()) * 100">
-              <span class="monthly-bar-value">{{ month.count }}</span>
-            </div>
-            <span class="monthly-bar-label">{{ month.month | date:'MMM' }}</span>
-          </div>
         }
-      </div>
-    </div>
-  </div>
-}
         
-        @if (showModal) {
+        <!-- MODAL NEWSLETTER -->
+        @if (showModal && !isEditing) {
             <div class="modal-overlay">
-                <div class="modal-card">
+                <div class="modal-card newsletter-modal">
                     <div class="modal-header">
-                        <h3 class="modal-title">{{ isEditing ? 'Editar Ideia' : 'Nova Newsletter' }}</h3>
+                        <h3 class="modal-title">Criar Nova Newsletter</h3>
                         <button (click)="closeModal()" class="modal-close-button">
-                            <i data-feather="x"></i>
+                            <i class="fas fa-times"></i>
                         </button>
                     </div>
                     <div class="modal-body">
-                        @if (!isEditing) {
-                            <form (ngSubmit)="onSubmitNewsletter()">
-                                <div class="form-group">
-                                    <label class="form-label">Título</label>
-                                    <input type="text" [(ngModel)]="newNewsletter.titulo" name="newsletterTitle" class="form-input" placeholder="Ex: Novidades da Semana">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Conteúdo</label>
-                                    <textarea [(ngModel)]="newNewsletter.conteudo" name="newsletterContent" rows="5" class="form-input" placeholder="Digite o conteúdo aqui..."></textarea>
-                                </div>
-                                <div class="form-actions">
-                                    <button type="button" (click)="closeModal()" class="cancel-button">Cancelar</button>
-                                    <button type="submit" class="submit-button">Salvar e Enviar</button>
-                                </div>
-                            </form>
-                        }
-                        @if (isEditing) {
-                            <form (ngSubmit)="saveModalIdea()">
-                                <div class="form-group">
-                                    <label class="form-label">Título</label>
-                                    <input type="text" [(ngModel)]="modalIdea.titulo_ideia" name="titulo_ideia" class="form-input">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Descrição</label>
-                                    <textarea [(ngModel)]="modalIdea.descricao_ideia_clob" name="descricao_ideia_clob" rows="5" class="form-input"></textarea>
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Status</label>
-                                    <select [(ngModel)]="modalIdea.status_ideia" name="status_ideia" class="form-input">
-                                        @for (status of ideaStatuses; track status) {
-                                            <option [value]="status">{{ status }}</option>
-                                        }
-                                    </select>
-                                </div>
-                                <div class="form-actions form-actions-between" [style.justifyContent]="isEditing ? 'space-between' : 'flex-end'">
-                                    <button type="button" (click)="closeModal()" class="cancel-button">Fechar</button>
-                                    <button type="submit" class="submit-button">Salvar</button>
-                                </div>
-                            </form>
-                        }
+                        <form (ngSubmit)="onSubmitNewsletter()" class="newsletter-form">
+                            <div class="form-group">
+                                <label for="newsletterTitle" class="form-label">Título</label>
+                                <input type="text" 
+                                       id="newsletterTitle"
+                                       [(ngModel)]="newNewsletter.titulo" 
+                                       name="newsletterTitle" 
+                                       class="form-input" 
+                                       placeholder="Ex: Novidades da Semana"
+                                       required>
+                            </div>
+                            <div class="form-group">
+                                <label for="newsletterContent" class="form-label">Conteúdo</label>
+                                <textarea id="newsletterContent"
+                                          [(ngModel)]="newNewsletter.conteudo" 
+                                          name="newsletterContent" 
+                                          rows="6" 
+                                          class="form-input" 
+                                          placeholder="Digite o conteúdo principal da newsletter."
+                                          required></textarea>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" (click)="closeModal()" class="cancel-button">Cancelar</button>
+                                <button type="submit" class="submit-button">Salvar e Enviar</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <!-- MODAL EDIÇÃO DE IDEIA -->
+        @if (showModal && isEditing) {
+            <div class="modal-overlay">
+                <div class="modal-card">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Detalhes da Ideia</h3>
+                        <button (click)="closeModal()" class="modal-close-button">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <form (ngSubmit)="saveModalIdea()">
+                            <div class="form-group">
+                                <label class="form-label">Título</label>
+                                <input type="text" [(ngModel)]="modalIdea.titulo_ideia" name="titulo_ideia" class="form-input">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Descrição</label>
+                                <textarea [(ngModel)]="modalIdea.descricao_ideia_clob" name="descricao_ideia_clob" rows="5" class="form-input"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Status</label>
+                                <select [(ngModel)]="modalIdea.status_ideia" name="status_ideia" class="form-input">
+                                    @for (status of ideaStatuses; track status) {
+                                        <option [value]="status">{{ status }}</option>
+                                    }
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" (click)="closeModal()" class="cancel-button">Fechar</button>
+                                <button type="submit" class="submit-button">Salvar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
